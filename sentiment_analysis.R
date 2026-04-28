@@ -11,10 +11,14 @@ library(ggpubr)
 
 load_data<-function(filename) {
 raw_data <- read_csv(filename, col_types = cols(id = col_character()))
+#makes id a character not a string
 clean_data <- raw_data %>%
   filter(language == "en") %>%
+  #only display English toots
   select(id, created_at, sensitive, visibility, language,
-         replies_count, reblogs_count, favourites_count, content)
+         replies_count, reblogs_count, favourites_count, content) %>%
+  mutate(content = gsub("<[^>]+>", "", content))
+  #updates content column, removes HTML resembling tags
     return(clean_data)
 }
 
