@@ -10,10 +10,11 @@ library(ggpubr)
 })
 
 load_data<-function(filename) {
-raw_data <- read_csv(filename)
-clean_data <- select(raw_data, id, sensitive, visibility, language, replies_count,
-       reblogs_count, favourites_count, content)
-tibble::glimpse(clean_data)
+raw_data <- read_csv(filename, col_types = cols(id = col_character()))
+clean_data <- raw_data %>%
+  filter(language == "en") %>%
+  select(id, created_at, sensitive, visibility, language,
+         replies_count, reblogs_count, favourites_count, content)
     return(clean_data)
 }
 
