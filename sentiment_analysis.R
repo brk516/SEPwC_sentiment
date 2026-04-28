@@ -2,6 +2,7 @@ suppressPackageStartupMessages({
 library(sentimentr)
 library(tidytext)
 library(lubridate)
+library(readr)
 library(dplyr)
 library(tidyr)
 library(argparse)
@@ -9,8 +10,11 @@ library(ggpubr)
 })
 
 load_data<-function(filename) {
-
-    return()
+raw_data <- read_csv(filename)
+clean_data <- select(raw_data, id, sensitive, visibility, language, replies_count,
+       reblogs_count, favourites_count, content)
+tibble::glimpse(clean_data)
+    return(clean_data)
 }
 
 word_analysis<-function(toot_data, emotion) {
@@ -25,7 +29,7 @@ sentiment_analysis<-function(toot_data) {
 }
 
 main <- function(args) {
-
+#look at formative for guidance
 }
 
 
