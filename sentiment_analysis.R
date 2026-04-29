@@ -24,8 +24,13 @@ clean_data <- raw_data %>%
 }
 
 word_analysis<-function(toot_data, emotion) {
-  tidy_data <- clean_data() %>%
-    unnest_tokens(word)
+  word_data <- toot_data %>%
+    unnest_tokens(word, content)
+  nrc_sentiment <- get_sentiments("nrc") %>%
+    filter(sentiment == emotion)
+  word_data %>%
+    inner_join(nrc_sentiment) %>%
+    count(word, sort = TRUE)
     return()
 }
 
