@@ -19,11 +19,13 @@ clean_data <- raw_data %>%
          replies_count, reblogs_count, favourites_count, content) %>%
   mutate(content = gsub("<[^>]+>", "", content))
   #updates content column, removes HTML resembling tags
+  tibble::glimpse(clean_data)
     return(clean_data)
 }
 
 word_analysis<-function(toot_data, emotion) {
-
+  tidy_data <- clean_data() %>%
+    unnest_tokens(word)
     return()
 }
 
