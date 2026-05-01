@@ -19,19 +19,23 @@ clean_data <- raw_data %>%
          replies_count, reblogs_count, favourites_count, content) %>%
   mutate(content = gsub("<[^>]+>", "", content))
   #updates content column, removes HTML resembling tags
-  tibble::glimpse(clean_data)
+  glimpse(clean_data) #ask why this prints multiple times!!!!!
     return(clean_data)
 }
 
 word_analysis<-function(toot_data, emotion) {
   word_data <- toot_data %>%
     unnest_tokens(word, content)
+  #break down sentences into words
   nrc_sentiment <- get_sentiments("nrc") %>%
     filter(sentiment == emotion)
-  word_data %>%
-    inner_join(nrc_sentiment) %>%
-    count(word, sort = TRUE)
-    return()
+  #filters desired emotion from words
+  clean_table <- word_data %>%
+    inner_join(nrc_sentiment, by = "word") %>%
+    #compares sentiment to words
+    count(id, sentiment, created_at, word, sort = TRUE) %>%
+    head(10)
+    return(clean_table)
 }
 
 sentiment_analysis<-function(toot_data) {
