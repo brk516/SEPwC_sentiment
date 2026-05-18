@@ -19,7 +19,7 @@ clean_data <- raw_data %>%
          replies_count, reblogs_count, favourites_count, content) %>%
   mutate(content = gsub("<[^>]+>", "", content))
   #updates content column, removes HTML resembling tags
-  glimpse(clean_data) #ask why this prints multiple times!!!!!
+  glimpse(clean_data)
     return(clean_data)
 }
 
@@ -39,10 +39,16 @@ word_analysis<-function(toot_data, emotion) {
 }
 
 sentiment_analysis<-function(toot_data) {
+  word_data <- toot_data %>%
+    unnest_tokens(word, content)
+  affin_sentiment <- get_sentiments("afinn") %>%
+    inner_join(word_data, by = "word") %>%
+    mutate(sentiment = as.character(value), method = "afinn") %>%
+    select(id, created_at, sentiment, method)
+  #mutate changes numerical values of afinn sentiment into words
+    return(affin_sentiment)
 
-    return()
-
-}
+}#to make it fancy can add a choice asking which library to make the graph with
 
 main <- function(args) {
 #look at formative for guidance
