@@ -41,13 +41,13 @@ word_analysis<-function(toot_data, emotion) {
 sentiment_analysis<-function(toot_data) {
   word_data <- toot_data %>%
     unnest_tokens(word, content)
-  affin_sentiment <- get_sentiments("afinn") %>%
+  afinn_sentiment <- get_sentiments("afinn") %>%
     inner_join(word_data, by = "word") %>%
     mutate(sentiment = as.character(value), method = "afinn") %>%
     select(id, created_at, sentiment, method)
   #mutate changes numerical values of afinn sentiment into words
-  nrc_sentimnet <- get_sentiments("nrc") %>%
-    inner_join(word_data, by = "word") %>%
+  nrc_sentiment <- get_sentiments("nrc") %>%
+    inner_join(word_data, by = "word", relationship = "many-to-many") %>%
     mutate(method = "nrc") %>%
     select(id, created_at, sentiment, method)
   #mutate adds a method column i.e. which lexion is doing the analysis
@@ -55,7 +55,8 @@ sentiment_analysis<-function(toot_data) {
     inner_join(word_data, by = "word") %>%
     mutate(method = "bing") %>%
     select(id, created_at, sentiment, method)
-    return(affin_sentiment)
+  merged_sentiment <- bind_rows(afinn_sentiment, nrc_sentiment, bing_sentiment)
+    return(merged_sentiment)
 
 }#to make it fancy can add a choice asking which library to make the graph with
 
