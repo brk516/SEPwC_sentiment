@@ -46,6 +46,15 @@ sentiment_analysis<-function(toot_data) {
     mutate(sentiment = as.character(value), method = "afinn") %>%
     select(id, created_at, sentiment, method)
   #mutate changes numerical values of afinn sentiment into words
+  nrc_sentimnet <- get_sentiments("nrc") %>%
+    inner_join(word_data, by = "word") %>%
+    mutate(method = "nrc") %>%
+    select(id, created_at, sentiment, method)
+  #mutate adds a method column i.e. which lexion is doing the analysis
+  bing_sentiment <- get_sentiments("bing") %>%
+    inner_join(word_data, by = "word") %>%
+    mutate(method = "bing") %>%
+    select(id, created_at, sentiment, method)
     return(affin_sentiment)
 
 }#to make it fancy can add a choice asking which library to make the graph with
