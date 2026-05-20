@@ -9,6 +9,8 @@ library(argparse)
 library(ggpubr)
 })
 
+options(python_cmd = "C:\\PROGRA~3\\ANACON~1\\python.exe")
+
 load_data<-function(filename) {
 raw_data <- read_csv(filename, col_types = cols(id = col_character()))
 #makes id a character not a string
@@ -40,25 +42,37 @@ word_analysis<-function(toot_data, emotion) {
 
 
 sentiment_analysis <- function(toot_data) {
-  word_data <- toot_data %>%
+
+   word_data <- toot_data %>%
     unnest_tokens(word, content)
-   afinn_sentiment <- get_sentiments("afinn") %>%
-    inner_join(word_data, by = "word") %>%
+   
+  afinn_sentiment <- word_data %>%
+    inner_join(get_sentiments("afinn"), by = "word") %>%
     mutate(sentiment = as.character(value), method = "afinn") %>%
     select(id, created_at, sentiment, method)
   #mutate changes numerical values of afinn sentiment into words
-  nrc_sentiment <- get_sentiments("nrc") %>%
-    inner_join(word_data, by = "word", relationship = "many-to-many") %>%
+  
+  nrc_sentiment <- word_data %>%
+    inner_join(get_sentiments("nrc"), by = "word",
+               relationship = "many-to-many") %>%
     mutate(method = "nrc") %>%
     select(id, created_at, sentiment, method)
   #mutate adds a method column i.e. which lexion is doing the analysis
-  bing_sentiment <- get_sentiments("bing") %>%
-    inner_join(word_data, by = "word") %>%
+  
+  bing_sentiment <- word_data %>%
+    inner_join(get_sentiments("bing"), by = "word") %>%
     mutate(method = "bing") %>%
     select(id, created_at, sentiment, method)
+  
   merged_sentiment <- bind_rows(afinn_sentiment, nrc_sentiment, bing_sentiment)
-   return(merged_sentiment)
-  }
+  
+  sorted_table <- merged_sentiment %>%
+    arrange(
+      factor(method, levels = c("afinn", "nrc", "bing")),
+      desc(id)
+    )
+  return(sorted_table)
+}
 
 
 #to make it fancy can add a choice asking which library to make the graph with
@@ -66,7 +80,6 @@ sentiment_analysis <- function(toot_data) {
 main <- function(args) {
   clean_data <- load_data(args$filename)
   sentiment_data <- sentiment_analysis(clean_data)
-  print(sentiment_data)
   plot_data <- sentiment_data %>%
   filter(!is.na(sentiment)) %>%
     count(method, sentiment)
@@ -104,7 +117,7 @@ if(sys.nframe() == 0) {
                     help="Print progress")
   parser$add_argument('-p', '--plot',
                     help="Plot something. Give the filename")
-  
-  args = parser$parse_args()  
+
+  args = parser$parse_args()
   main(args)
 }
