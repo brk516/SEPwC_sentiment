@@ -56,12 +56,39 @@ sentiment_analysis<-function(toot_data) {
     mutate(method = "bing") %>%
     select(id, created_at, sentiment, method)
   merged_sentiment <- bind_rows(afinn_sentiment, nrc_sentiment, bing_sentiment)
-    return(merged_sentiment)
+  return(merged_sentiment)
 
 }#to make it fancy can add a choice asking which library to make the graph with
 
 main <- function(args) {
-#look at formative for guidance
+  if (args$verbose) {
+    message("Loading and cleaning data from: ", args$filename)
+  }
+  clean_data <- load_data(args$filename)
+  if (args$verbose) {
+    message("Running sentiment analysis")
+  }
+  sentiment_results <- sentiment_analysis(clean_data)
+  plot_data <- sentiment_results %>%
+    filter(!is.na(sentiment)) %>%
+    count(method, sentiment)
+  sentiment_plot <- ggbarplot(
+    plot_data,
+    x = "sentiment",
+    y = "n",
+    facet.by = "method",
+    scales = "free",
+    fill = "method",
+    title = "Sentiment analysis results"
+  )
+  output_filename <- if (!is.null(args$plot)) args$plot else args$output
+  if (!is.null(output_filename)) {
+    if (ars$verbose) {
+    message("Saving plot to:", output_filename)
+    }
+    ggexport(sentiment_plot, filename = output_filename)
+  }
+  return(sentiment_results)
 }
 
 
